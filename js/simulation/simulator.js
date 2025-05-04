@@ -252,38 +252,6 @@ window.SimuladorFluxoCaixa = {
 		
 		// Adicionar eventos aos novos botões
 		this.adicionarEventosBotoes();
-		
-		// Modificar a função exibirResultados (a partir da linha 196)
-		// Adicionar no final antes de fechar a função (aproximadamente linha 380)
-
-		// Adicionar banner de versão demo nos resultados
-		if (resultados.demoVersion) {
-			html += `
-				<div class="result-card upgrade-card">
-					<h3><i class="premium-icon">⭐</i> Acesse a análise completa</h3>
-					<p>Esta versão de demonstração exibe apenas o impacto inicial (${projecao.parametros.anoInicial}).</p>
-					<p>A versão completa inclui:</p>
-					<ul>
-						<li>Projeção completa até 2033</li>
-						<li>Análise detalhada ano a ano</li>
-						<li>Estratégias avançadas de mitigação</li>
-						<li>Exportação em múltiplos formatos</li>
-					</ul>
-					<button id="btn-upgrade-results" class="btn btn-primary">Adquirir Versão Completa</button>
-				</div>
-			`;
-		}
-
-		// Adicionar evento ao botão de upgrade nos resultados
-		setTimeout(() => {
-			const btnUpgradeResults = document.getElementById('btn-upgrade-results');
-			if (btnUpgradeResults) {
-				btnUpgradeResults.addEventListener('click', function() {
-					const modal = document.getElementById('modal-upgrade');
-					if (modal) modal.style.display = 'block';
-				});
-			}
-		}, 100);
 	},
 
     /**
@@ -830,51 +798,166 @@ window.SimuladorFluxoCaixa = {
      * @param {Object} dados - Dados para simulação
      * @returns {Object} - Resultados da simulação
      */
-    // Substituir a função simular (a partir da linha 555)
-	// Modificação mais robusta para a função simular em js/simulation/simulator.js
+    // Substitua toda a função simular existente por esta versão
 	simular: function(dados) {
 		console.log('Iniciando simulação na versão demo:', dados);
 
-		// Forçar data final igual à inicial na versão demo
-		const anoInicial = parseInt(dados.dataInicial.split('-')[0]);
+		try {
+			// Forçar limite de anos na versão demo
+			const anoInicial = parseInt(dados.dataInicial.split('-')[0]);
 
-		// Criar uma cópia dos dados para não afetar o objeto original
-		const dadosDemo = JSON.parse(JSON.stringify(dados));
+			// Criar uma cópia dos dados para não afetar o objeto original
+			const dadosDemo = JSON.parse(JSON.stringify(dados));
 
-		// Forçar data final igual à inicial
-		dadosDemo.dataFinal = dadosDemo.dataInicial;
-		console.log('Demo: Forçando ano final igual ao inicial:', dadosDemo.dataFinal);
+			// Forçar data final igual à inicial
+			dadosDemo.dataFinal = dadosDemo.dataInicial;
+			console.log('Demo: Forçando ano final igual ao inicial:', dadosDemo.dataFinal);
 
-		// Calcular impacto inicial
-		const impactoBase = this.calcularImpactoCapitalGiro(dadosDemo, anoInicial);
+			// Calcular impacto inicial usando a função original
+			const impactoBase = this.calcularImpactoCapitalGiro(dadosDemo, anoInicial);
 
-		// Simular apenas para o ano inicial
-		const projecaoTemporal = this.simularPeriodoTransicao(
-			dadosDemo,
-			anoInicial,
-			anoInicial, // Forçar ano final igual ao inicial
-			dadosDemo.cenario,
-			dadosDemo.taxaCrescimento
-		);
+			// Simular apenas para o ano inicial
+			const projecaoTemporal = this.simularPeriodoTransicao(
+				dadosDemo,
+				anoInicial,
+				anoInicial, // Forçar ano final igual ao inicial
+				dadosDemo.cenario,
+				dadosDemo.taxaCrescimento
+			);
 
-		// Marcar como versão demo
-		projecaoTemporal.demoVersion = true;
-		projecaoTemporal.fullVersionMessage = "A simulação multi-anual (2026-2033) está disponível na versão completa.";
+			// Marcar como versão demo
+			projecaoTemporal.demoVersion = true;
+			projecaoTemporal.fullVersionMessage = "A simulação multi-anual (2026-2033) está disponível na versão completa.";
 
-		// Armazenar memória de cálculo limitada
-		const memoriaCalculo = this.gerarMemoriaCalculo(dadosDemo, anoInicial, anoInicial);
+			// Armazenar memória de cálculo limitada
+			const memoriaCalculo = this.gerarMemoriaCalculo(dadosDemo, anoInicial, anoInicial);
 
-		// Resultados completos
-		const resultados = {
-			impactoBase,
-			projecaoTemporal,
-			memoriaCalculo,
-			demoVersion: true
-		};
+			// Resultados completos
+			const resultados = {
+				impactoBase,
+				projecaoTemporal,
+				memoriaCalculo,
+				demoVersion: true
+			};
 
-		console.log('Simulação demo concluída com sucesso:', resultados);
-		return resultados;
+			console.log('Simulação demo concluída com sucesso:', resultados);
+			return resultados;
+		} catch (error) {
+			console.error('Erro na simulação (versão demo):', error);
+			throw error;
+		}
 	},
+    
+    /**
+     * Calcula o fluxo de caixa no regime tributário atual
+     * @param {Object} dados - Dados para simulação
+     * @returns {Object} - Resultados do fluxo de caixa atual
+     */
+    calcularFluxoCaixaAtual: function(dados) {
+        // Extrair dados relevantes
+        const faturamento = dados.faturamento;
+        const aliquota = dados.aliquota;
+        const pmr = dados.pmr;
+        
+        // Calcular valores
+        const valorImposto = faturamento * aliquota;
+        const prazoRecolhimento = 25; // Dias para recolhimento do imposto (mês seguinte)
+        const capitalGiroDisponivel = valorImposto;
+        const diasCapitalDisponivel = pmr + prazoRecolhimento;
+        
+        // Resultado
+        const resultado = {
+            faturamento,
+            valorImposto,
+            recebimentoLiquido: faturamento,
+            capitalGiroDisponivel,
+            diasCapitalDisponivel
+        };
+        
+        // Armazenar resultado para memória de cálculo
+        this._resultadoAtual = resultado;
+        
+        return resultado;
+    },
+    
+    /**
+     * Calcula o fluxo de caixa com o regime de Split Payment
+     * @param {Object} dados - Dados para simulação
+     * @param {number} ano - Ano para simulação
+     * @returns {Object} - Resultados do fluxo de caixa com Split Payment
+     */
+    calcularFluxoCaixaSplitPayment: function(dados, ano = 2026) {
+        // Extrair dados relevantes
+        const faturamento = dados.faturamento;
+        const aliquota = dados.aliquota;
+        const pmr = dados.pmr;
+        
+        // Obter percentual de implementação do Split Payment para o ano
+        const percentualImplementacao = this.obterPercentualImplementacao(ano);
+        
+        // Calcular valores
+        const valorImposto = faturamento * aliquota;
+        const valorImpostoSplit = valorImposto * percentualImplementacao;
+        const valorImpostoNormal = valorImposto - valorImpostoSplit;
+        
+        const recebimentoLiquido = faturamento - valorImpostoSplit;
+        const capitalGiroDisponivel = valorImpostoNormal;
+        const diasCapitalDisponivel = 25; // Apenas para o valor não retido
+        
+        // Resultado
+        const resultado = {
+            faturamento,
+            valorImposto,
+            valorImpostoSplit,
+            valorImpostoNormal,
+            recebimentoLiquido,
+            capitalGiroDisponivel,
+            diasCapitalDisponivel,
+            percentualImplementacao
+        };
+        
+        // Armazenar resultado para memória de cálculo
+        this._resultadoSplitPayment = resultado;
+        
+        return resultado;
+    },
+    
+    /**
+     * Calcula o impacto do Split Payment no capital de giro
+     * @param {Object} dados - Dados para simulação
+     * @param {number} ano - Ano para simulação
+     * @returns {Object} - Resultados do impacto no capital de giro
+     */
+    calcularImpactoCapitalGiro: function(dados, ano = 2026) {
+        // Calcular fluxo de caixa nos dois regimes
+        const resultadoAtual = this.calcularFluxoCaixaAtual(dados);
+        const resultadoSplitPayment = this.calcularFluxoCaixaSplitPayment(dados, ano);
+        
+        // Calcular diferenças
+        const diferencaCapitalGiro = resultadoSplitPayment.capitalGiroDisponivel - resultadoAtual.capitalGiroDisponivel;
+        const percentualImpacto = (diferencaCapitalGiro / resultadoAtual.capitalGiroDisponivel) * 100;
+        
+        // Calcular impacto na margem operacional
+        const margem = dados.margem;
+        const custoCapitalGiro = Math.abs(diferencaCapitalGiro) * (dados.taxaCapitalGiro || 0.021); // 2,1% a.m. padrão
+        const impactoMargem = (custoCapitalGiro / dados.faturamento) * 100;
+        
+        // Resultado
+        const resultado = {
+            ano,
+            resultadoAtual,
+            resultadoSplitPayment,
+            diferencaCapitalGiro,
+            percentualImpacto,
+            necessidadeAdicionalCapitalGiro: Math.abs(diferencaCapitalGiro) * 1.2, // Margem de segurança
+            margemOperacionalOriginal: margem,
+            margemOperacionalAjustada: margem - impactoMargem / 100,
+            impactoMargem,
+            custoCapitalGiro
+        };
+        
+        return resultado;
+    },
     
     /**
      * Simula o impacto ao longo do período de transição

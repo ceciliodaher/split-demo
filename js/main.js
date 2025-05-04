@@ -4,6 +4,515 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM carregado, SimuladorFluxoCaixa disponível?', !!window.SimuladorFluxoCaixa);
 });
 
+// Substituir todo o conteúdo relacionado ao DemoVersionManager em js/main.js
+// Adicionar no início do arquivo, após as outras importações
+
+// Gerenciamento de recursos da versão demo
+window.DemoVersionManager = {
+    init: function() {
+        console.log('Inicializando DemoVersionManager');
+        // Inicializar limitações da versão demo
+        this.setupDemoLimitations();
+        // Inicializar eventos do modal de upgrade
+        this.setupUpgradeModal();
+        // Adicionar notificações de limitação
+        this.setupNotifications();
+    },
+
+    setupDemoLimitations: function() {
+        console.log('Configurando limitações da versão demo');
+        // Limitar anos de projeção
+        const dataFinalInput = document.getElementById('data-final');
+        const dataInicialInput = document.getElementById('data-inicial');
+        
+        if (dataFinalInput && dataInicialInput) {
+            // Forçar data final igual à inicial
+            dataFinalInput.setAttribute('readonly', 'readonly');
+            dataFinalInput.style.backgroundColor = '#f0f0f0';
+            dataFinalInput.style.cursor = 'not-allowed';
+            
+            // Sincronizar data final com a inicial
+            dataInicialInput.addEventListener('change', function() {
+                dataFinalInput.value = this.value;
+            });
+            
+            // Bloquear tentativas de edição
+            dataFinalInput.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.DemoVersionManager.showUpgradeModal('A simulação multi-anual está disponível apenas na versão completa');
+            });
+        }
+
+        // Limitar exportação
+        const btnExportarExcel = document.getElementById('btn-exportar-excel');
+        if (btnExportarExcel) {
+            btnExportarExcel.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                window.DemoVersionManager.showUpgradeModal('A exportação para Excel está disponível apenas na versão completa');
+                return false;
+            });
+        }
+
+        // Limitar quantidade de setores disponíveis
+        this.limitAvailableSectors();
+
+        // Limitar estratégias de mitigação
+        this.limitMitigationStrategies();
+
+        // Limitar memória de cálculo
+        this.limitCalculationMemory();
+    },
+
+    limitAvailableSectors: function() {
+        console.log('Configurando limitação de setores');
+        // Lista de setores permitidos na demo
+        const allowedSectors = ['comercio', 'industria', 'servicos'];
+        
+        // Aplicar limitação ao dropdown de setores
+        const sectorSelect = document.getElementById('setor');
+        if (sectorSelect) {
+            // Processar opções existentes
+            const options = sectorSelect.querySelectorAll('option');
+            options.forEach(option => {
+                if (option.value && !allowedSectors.includes(option.value)) {
+                    option.disabled = true;
+                    option.text = option.text + ' (Versão Completa)';
+                }
+            });
+            
+            // Observar carregamento futuro
+            const observer = new MutationObserver(function(mutations) {
+                const newOptions = sectorSelect.querySelectorAll('option:not([disabled])');
+                newOptions.forEach(option => {
+                    if (option.value && !allowedSectors.includes(option.value)) {
+                        option.disabled = true;
+                        option.text = option.text + ' (Versão Completa)';
+                    }
+                });
+            });
+            
+            observer.observe(sectorSelect, { childList: true });
+        }
+    },
+
+    limitMitigationStrategies: function() {
+        console.log('Configurando limitação de estratégias');
+        // Estratégias permitidas na demo
+        const allowedStrategies = ['ajuste-precos', 'renegociacao-prazos'];
+        
+        // Bloquear abas de estratégias não permitidas
+        setTimeout(() => {
+            const strategyTabs = document.querySelectorAll('.strategy-tab-button');
+            strategyTabs.forEach(tab => {
+                const tabId = tab.getAttribute('data-strategy-tab');
+                if (tabId && !allowedStrategies.includes(tabId)) {
+                    tab.classList.add('disabled');
+                    tab.setAttribute('disabled', 'disabled');
+                    tab.innerHTML += ' <span class="demo-tag">Versão Completa</span>';
+                    
+                    tab.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        window.DemoVersionManager.showUpgradeModal('A estratégia ' + 
+                            tab.textContent.replace(' Versão Completa', '') + 
+                            ' está disponível apenas na versão completa');
+                        return false;
+                    });
+                    
+                    // Ocultar conteúdo da aba
+                    const tabContent = document.querySelector(`.strategy-tab-content[data-strategy-tab="${tabId}"]`);
+                    if (tabContent) {
+                        tabContent.style.display = 'none';
+                    }
+                }
+            });
+        }, 500);
+    },
+
+    limitCalculationMemory: function() {
+        console.log('Configurando limitação de memória de cálculo');
+        // Limitar acesso à aba de memória de cálculo
+        const memoryTab = document.querySelector('.tab-button[data-tab="memoria"]');
+        if (memoryTab) {
+            memoryTab.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                window.DemoVersionManager.showUpgradeModal('A memória de cálculo detalhada está disponível apenas na versão completa');
+                return false;
+            });
+
+            // Adicionar indicador visual
+            memoryTab.innerHTML += ' <small class="premium-tag">Premium</small>';
+        }
+    },
+
+    setupUpgradeModal: function() {
+        console.log('Configurando modal de upgrade');
+        const modal = document.getElementById('modal-upgrade');
+        const btnUpgrade = document.getElementById('btn-upgrade');
+        
+        if (!modal || !btnUpgrade) {
+            console.error('Modal de upgrade não encontrado. Criando elementos...');
+            this.createUpgradeElements();
+            return;
+        }
+        
+        // Abrir modal ao clicar no botão de upgrade
+        btnUpgrade.addEventListener('click', function(e) {
+            e.preventDefault();
+            modal.style.display = 'block';
+        });
+
+        // Configurar fechamento do modal
+        const closeBtns = modal.querySelectorAll('.close, .close-modal');
+        closeBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                modal.style.display = 'none';
+            });
+        });
+
+        // Fechar ao clicar fora
+        window.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    },
+    
+    createUpgradeElements: function() {
+        console.log('Criando elementos para a versão demo');
+        // Criar banner de versão demo
+        const demoBanner = document.createElement('div');
+        demoBanner.className = 'demo-banner';
+        demoBanner.innerHTML = '<p>Versão de Demonstração - <a href="#" id="btn-upgrade" class="upgrade-button">Adquira a Versão Completa</a></p>';
+        document.body.insertBefore(demoBanner, document.body.firstChild);
+        
+        // Criar modal de upgrade
+        const modalHTML = `
+            <div id="modal-upgrade" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Adquira a Versão Completa</h3>
+                        <span class="close">×</span>
+                    </div>
+                    <div class="modal-body">
+                        <h4>Recursos exclusivos da versão completa:</h4>
+                        <ul class="feature-list">
+                            <li><i class="feature-icon">✓</i> Simulação completa para todos os anos (2026-2033)</li>
+                            <li><i class="feature-icon">✓</i> Acesso a todos os setores econômicos</li>
+                            <li><i class="feature-icon">✓</i> 6 estratégias avançadas de mitigação</li>
+                            <li><i class="feature-icon">✓</i> Exportação detalhada para Excel</li>
+                            <li><i class="feature-icon">✓</i> Memória de cálculo completa</li>
+                            <li><i class="feature-icon">✓</i> Combinação ótima de estratégias</li>
+                            <li><i class="feature-icon">✓</i> Personalização de setores</li>
+                        </ul>
+                        <div class="pricing-info">
+                            <p class="price">R$ 1.290,00</p>
+                            <p class="price-detail">Licença anual com atualizações</p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <a href="https://www.expertzy.com.br/adquirir-simulador" class="btn-primary">Adquirir Agora</a>
+                        <button class="btn-secondary close-modal">Voltar ao Simulador</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        
+        // Adicionar estilos
+        const styleElement = document.createElement('style');
+        styleElement.textContent = `
+            .demo-banner {
+                background-color: #ff5722;
+                color: white;
+                text-align: center;
+                padding: 8px 0;
+                font-weight: bold;
+                position: fixed;
+                top: 0;
+                width: 100%;
+                z-index: 9999;
+            }
+
+            .upgrade-button {
+                background-color: white;
+                color: #ff5722;
+                padding: 4px 12px;
+                border-radius: 4px;
+                margin-left: 10px;
+                text-decoration: none;
+                font-weight: bold;
+            }
+
+            .upgrade-button:hover {
+                background-color: #f0f0f0;
+            }
+
+            .container {
+                margin-top: 36px;
+            }
+
+            .feature-list {
+                list-style: none;
+                padding: 0;
+            }
+
+            .feature-list li {
+                margin-bottom: 12px;
+                display: flex;
+                align-items: center;
+            }
+
+            .feature-icon {
+                color: #2ecc71;
+                font-weight: bold;
+                margin-right: 10px;
+                font-style: normal;
+            }
+
+            .pricing-info {
+                text-align: center;
+                margin: 24px 0;
+                padding: 15px;
+                background-color: #f8f9fa;
+                border-radius: 5px;
+            }
+
+            .price {
+                font-size: 28px;
+                font-weight: bold;
+                color: #2c3e50;
+                margin: 0;
+            }
+
+            .price-detail {
+                color: #7f8c8d;
+                margin: 5px 0 0 0;
+            }
+
+            .feature-blocked {
+                opacity: 0.5;
+                position: relative;
+            }
+
+            .feature-blocked::after {
+                content: "Disponível na versão completa";
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.7);
+                color: white;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-weight: bold;
+                border-radius: 5px;
+            }
+            
+            .modal {
+                display: none;
+                position: fixed;
+                z-index: 10000;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                overflow: auto;
+                background-color: rgba(0,0,0,0.4);
+            }
+
+            .modal-content {
+                background-color: #fefefe;
+                margin: 10% auto;
+                padding: 0;
+                border: 1px solid #888;
+                width: 80%;
+                max-width: 600px;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                border-radius: 8px;
+            }
+
+            .modal-header {
+                padding: 15px 20px;
+                background-color: #ff5722;
+                color: white;
+                border-top-left-radius: 8px;
+                border-top-right-radius: 8px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .modal-body {
+                padding: 20px;
+            }
+
+            .modal-footer {
+                padding: 15px 20px;
+                background-color: #f8f9fa;
+                border-bottom-left-radius: 8px;
+                border-bottom-right-radius: 8px;
+                text-align: right;
+            }
+
+            .close {
+                color: white;
+                float: right;
+                font-size: 28px;
+                font-weight: bold;
+                cursor: pointer;
+            }
+
+            .btn-primary {
+                background-color: #ff5722;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: bold;
+                text-decoration: none;
+                display: inline-block;
+            }
+
+            .btn-secondary {
+                background-color: #f0f0f0;
+                color: #333;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 4px;
+                cursor: pointer;
+                margin-left: 10px;
+            }
+            
+            .premium-tag {
+                background-color: #ff5722;
+                color: white;
+                padding: 2px 5px;
+                border-radius: 3px;
+                font-size: 10px;
+                vertical-align: super;
+            }
+
+            .demo-tag {
+                background-color: #7f8c8d;
+                color: white;
+                font-size: 10px;
+                padding: 1px 4px;
+                border-radius: 3px;
+                margin-left: 5px;
+            }
+            
+            .premium-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.7);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 10;
+                border-radius: 5px;
+            }
+
+            .premium-overlay span {
+                color: white;
+                font-weight: bold;
+                background-color: #ff5722;
+                padding: 8px 16px;
+                border-radius: 4px;
+            }
+
+            .chart-container {
+                position: relative;
+            }
+        `;
+        document.head.appendChild(styleElement);
+        
+        // Configurar os novos elementos
+        setTimeout(() => this.setupUpgradeModal(), 100);
+    },
+
+    showUpgradeModal: function(message) {
+        console.log('Exibindo modal de upgrade com mensagem:', message);
+        const modal = document.getElementById('modal-upgrade');
+        
+        if (!modal) {
+            console.error('Modal de upgrade não encontrado');
+            this.createUpgradeElements();
+            setTimeout(() => this.showUpgradeModal(message), 200);
+            return;
+        }
+
+        // Adicionar mensagem personalizada se fornecida
+        if (message) {
+            const messageEl = document.createElement('div');
+            messageEl.className = 'upgrade-message';
+            messageEl.textContent = message;
+
+            const modalBody = modal.querySelector('.modal-body');
+            if (modalBody) {
+                // Remover mensagem anterior se existir
+                const existingMessage = modalBody.querySelector('.upgrade-message');
+                if (existingMessage) {
+                    modalBody.removeChild(existingMessage);
+                }
+
+                // Inserir nova mensagem no início
+                modalBody.insertBefore(messageEl, modalBody.firstChild);
+            }
+        }
+
+        modal.style.display = 'block';
+    },
+
+    setupNotifications: function() {
+        console.log('Configurando notificações para recursos premium');
+        // Adicionar notificações para recursos premium (gráficos)
+        setTimeout(() => {
+            const chartContainers = document.querySelectorAll('.chart-container');
+            console.log('Containers de gráficos encontrados:', chartContainers.length);
+            
+            // Limitar a exibição de apenas 2 gráficos na demo
+            chartContainers.forEach((container, index) => {
+                if (index > 1) {
+                    console.log('Bloqueando gráfico:', index);
+                    container.classList.add('feature-blocked');
+                    
+                    // Adicionar overlay com mensagem
+                    const overlay = document.createElement('div');
+                    overlay.className = 'premium-overlay';
+                    overlay.innerHTML = '<span>Disponível na versão completa</span>';
+                    container.appendChild(overlay);
+                    
+                    container.addEventListener('click', function() {
+                        window.DemoVersionManager.showUpgradeModal('Gráficos adicionais estão disponíveis na versão completa');
+                    });
+                }
+            });
+        }, 1000);
+    }
+};
+
+// Garantir inicialização após carregamento do DOM
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM carregado, inicializando DemoVersionManager');
+    setTimeout(() => {
+        try {
+            window.DemoVersionManager.init();
+            console.log('DemoVersionManager inicializado com sucesso');
+        } catch (error) {
+            console.error('Erro ao inicializar DemoVersionManager:', error);
+        }
+    }, 500);
+});
+
 /**
  * Script principal do simulador de Split Payment
  * Inicializa todos os módulos e estabelece as relações entre eles
@@ -188,294 +697,3 @@ function observarMudancasDeAba() {
         }
     });
 }
-
-// Adicionar na linha 103 (final do arquivo)
-// Gerenciamento de recursos da versão demo
-const DemoVersionManager = {
-    init: function() {
-        // Inicializar limitações da versão demo
-        this.setupDemoLimitations();
-        // Inicializar eventos do modal de upgrade
-        this.setupUpgradeModal();
-        // Adicionar notificações de limitação
-        this.setupNotifications();
-    },
-    
-    setupDemoLimitations: function() {
-        // Limitar anos de projeção
-        // Adicionar ao início da função DemoVersionManager.setupDemoLimitations em js/main.js
-        // Garantir que o campo de data final não possa ser editado
-        const dataFinalInput = document.getElementById('data-final');
-        if (dataFinalInput) {
-            // Definir o valor para o mesmo ano que a data inicial
-            const dataInicialInput = document.getElementById('data-inicial');
-            if (dataInicialInput && dataInicialInput.value) {
-                dataFinalInput.value = dataInicialInput.value;
-            }
-
-            // Aplicar atributos para torná-lo não editável
-            dataFinalInput.setAttribute('readonly', 'readonly');
-            dataFinalInput.style.backgroundColor = '#f0f0f0';
-            dataFinalInput.style.cursor = 'not-allowed';
-
-            // Adicionar evento para manter o valor igual ao da data inicial
-            dataInicialInput.addEventListener('change', function() {
-                dataFinalInput.value = this.value;
-            });
-
-            // Adicionar evento para bloquear tentativas de edição
-            dataFinalInput.addEventListener('click', function(e) {
-                e.preventDefault();
-                DemoVersionManager.showUpgradeModal('A simulação multi-anual está disponível apenas na versão completa');
-            });
-        }
-        
-        // Limitar exportação
-        // Bloquear botão de exportação para Excel de forma mais direta
-        const btnExportarExcel = document.getElementById('btn-exportar-excel');
-        if (btnExportarExcel) {
-            // Substituir o handler do evento click
-            btnExportarExcel.onclick = function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('Clique no botão de exportação para Excel bloqueado');
-                DemoVersionManager.showUpgradeModal('A exportação para Excel está disponível apenas na versão completa');
-                return false;
-            };
-
-            // Adicionar classes visuais para indicar que está desativado
-            btnExportarExcel.classList.add('disabled-premium');
-            btnExportarExcel.innerHTML += ' <span class="premium-tag">Premium</span>';
-        }
-        
-        // Limitar quantidade de setores disponíveis
-        this.limitAvailableSectors();
-        
-        // Limitar estratégias de mitigação
-        this.limitMitigationStrategies();
-        
-        // Limitar memória de cálculo
-        this.limitCalculationMemory();
-    },
-    
-    // Melhorar a função limitAvailableSectors em js/main.js
-    limitAvailableSectors: function() {
-        console.log('Configurando limitação de setores');
-
-        // Lista de setores permitidos na demo (3-5 setores)
-        const allowedSectors = ['comercio', 'industria', 'servicos'];
-
-        // Aplicar limitação ao dropdown de setores
-        setTimeout(function() {
-            const sectorSelect = document.getElementById('setor');
-            if (sectorSelect) {
-                console.log('Dropdown de setores encontrado, aplicando limitações');
-
-                // Processar todas as opções existentes
-                const options = sectorSelect.querySelectorAll('option');
-                options.forEach(option => {
-                    if (option.value && !allowedSectors.includes(option.value)) {
-                        console.log('Desabilitando setor:', option.value);
-                        option.disabled = true;
-                        option.text = option.text + ' (Versão Completa)';
-                    }
-                });
-
-                // Observar mudanças futuras no dropdown (para casos de carregamento dinâmico)
-                const observer = new MutationObserver(function(mutations) {
-                    mutations.forEach(function(mutation) {
-                        if (mutation.type === 'childList') {
-                            const newOptions = sectorSelect.querySelectorAll('option:not([disabled])');
-                            newOptions.forEach(option => {
-                                if (option.value && !allowedSectors.includes(option.value)) {
-                                    console.log('Desabilitando novo setor:', option.value);
-                                    option.disabled = true;
-                                    option.text = option.text + ' (Versão Completa)';
-                                }
-                            });
-                        }
-                    });
-                });
-
-                observer.observe(sectorSelect, { childList: true, subtree: true });
-            }
-        }, 500);
-    },
-
-    // Melhorar a função limitMitigationStrategies em js/main.js
-    limitMitigationStrategies: function() {
-        console.log('Configurando limitação de estratégias');
-
-        // Estratégias permitidas na demo
-        const allowedStrategies = ['ajuste-precos', 'renegociacao-prazos'];
-
-        // Aplicar bloqueio às estratégias não permitidas
-        setTimeout(function() {
-            // Bloquear abas de estratégias
-            const strategyTabs = document.querySelectorAll('.strategy-tab-button');
-            console.log('Abas de estratégias encontradas:', strategyTabs.length);
-
-            strategyTabs.forEach(tab => {
-                const tabId = tab.getAttribute('data-strategy-tab');
-                if (tabId && !allowedStrategies.includes(tabId)) {
-                    console.log('Desabilitando estratégia:', tabId);
-
-                    // Desabilitar visualmente
-                    tab.classList.add('disabled');
-                    tab.setAttribute('disabled', 'disabled');
-
-                    // Adicionar indicador visual
-                    if (!tab.innerHTML.includes('Versão Completa')) {
-                        tab.innerHTML += ' <span class="demo-tag">Versão Completa</span>';
-                    }
-
-                    // Substituir evento de clique
-                    tab.onclick = function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        console.log('Clique em estratégia bloqueada:', tabId);
-                        DemoVersionManager.showUpgradeModal('A estratégia ' + tab.textContent.replace(' Versão Completa', '') + ' está disponível apenas na versão completa');
-                        return false;
-                    };
-
-                    // Ocultar o conteúdo da aba
-                    const tabContent = document.querySelector('.strategy-tab-content[data-strategy-tab="' + tabId + '"]');
-                    if (tabContent) {
-                        tabContent.style.display = 'none';
-                    }
-                }
-            });
-        }, 1000);
-    },
-    
-    limitCalculationMemory: function() {
-        // Limitar acesso à aba de memória de cálculo
-        const memoryTab = document.querySelector('.tab-button[data-tab="memoria"]');
-        if (memoryTab) {
-            memoryTab.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                DemoVersionManager.showUpgradeModal('A memória de cálculo detalhada está disponível apenas na versão completa');
-            });
-            
-            // Adicionar indicador visual
-            memoryTab.innerHTML += ' <small class="premium-tag">Premium</small>';
-        }
-    },
-    
-    setupUpgradeModal: function() {
-        const modal = document.getElementById('modal-upgrade');
-        const btnUpgrade = document.getElementById('btn-upgrade');
-        const closeBtns = modal.querySelectorAll('.close, .close-modal');
-        
-        // Abrir modal ao clicar no botão de upgrade
-        btnUpgrade.addEventListener('click', function(e) {
-            e.preventDefault();
-            modal.style.display = 'block';
-        });
-        
-        // Fechar modal
-        closeBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                modal.style.display = 'none';
-            });
-        });
-        
-        // Fechar ao clicar fora
-        window.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                modal.style.display = 'none';
-            }
-        });
-    },
-    
-    showUpgradeModal: function(message) {
-        const modal = document.getElementById('modal-upgrade');
-        
-        // Adicionar mensagem personalizada se fornecida
-        if (message) {
-            const messageEl = document.createElement('div');
-            messageEl.className = 'upgrade-message';
-            messageEl.textContent = message;
-            
-            const modalBody = modal.querySelector('.modal-body');
-            
-            // Remover mensagem anterior se existir
-            const existingMessage = modalBody.querySelector('.upgrade-message');
-            if (existingMessage) {
-                modalBody.removeChild(existingMessage);
-            }
-            
-            // Inserir nova mensagem no início
-            modalBody.insertBefore(messageEl, modalBody.firstChild);
-        }
-        
-        modal.style.display = 'block';
-    },
-    
-    // Substituir a função setupNotifications em js/main.js
-    setupNotifications: function() {
-        console.log('Configurando notificações e limitações de gráficos');
-
-        // Implementação mais robusta para limitar gráficos
-        setTimeout(function() {
-            // Selecionar todos os containers de gráficos
-            const chartContainers = document.querySelectorAll('.chart-container');
-            console.log('Containers de gráficos encontrados:', chartContainers.length);
-
-            // Aplicar limitação apenas aos gráficos além dos 2 primeiros
-            chartContainers.forEach((container, index) => {
-                if (index > 1) {
-                    console.log('Bloqueando gráfico:', index);
-
-                    // Aplicar overlay de bloqueio
-                    container.classList.add('feature-blocked');
-
-                    // Desabilitar interatividade
-                    const canvas = container.querySelector('canvas');
-                    if (canvas) {
-                        canvas.style.pointerEvents = 'none';
-                        canvas.style.filter = 'blur(3px)';
-                    }
-
-                    // Adicionar overlay com mensagem
-                    const overlay = document.createElement('div');
-                    overlay.className = 'premium-overlay';
-                    overlay.innerHTML = '<span>Disponível na versão completa</span>';
-                    container.appendChild(overlay);
-
-                    // Adicionar evento de clique para mostrar modal
-                    container.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        DemoVersionManager.showUpgradeModal('Gráficos adicionais estão disponíveis na versão completa');
-                    });
-                }
-            });
-        }, 1000); // Delay para garantir que os gráficos já foram renderizados
-    }
-};
-
-// Garantir que o DemoVersionManager seja inicializado corretamente
-// Adicionar ao final do arquivo js/main.js
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Inicializando DemoVersionManager');
-    
-    // Verificar se o DemoVersionManager já existe
-    if (typeof DemoVersionManager === 'undefined') {
-        console.error('DemoVersionManager não encontrado, definindo agora');
-        
-        // Definir o objeto DemoVersionManager caso não exista
-        window.DemoVersionManager = {
-            // Funções existentes...
-        };
-    }
-    
-    // Inicializar o DemoVersionManager
-    try {
-        window.DemoVersionManager.init();
-        console.log('DemoVersionManager inicializado com sucesso');
-    } catch (error) {
-        console.error('Erro ao inicializar DemoVersionManager:', error);
-    }
-});
