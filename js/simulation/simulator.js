@@ -831,31 +831,38 @@ window.SimuladorFluxoCaixa = {
      * @returns {Object} - Resultados da simulação
      */
     // Substituir a função simular (a partir da linha 555)
+	// Modificação mais robusta para a função simular em js/simulation/simulator.js
 	simular: function(dados) {
-		console.log('Iniciando simulação:', dados);
+		console.log('Iniciando simulação na versão demo:', dados);
 
-		// Versão demo: limitar para apenas o ano inicial
+		// Forçar data final igual à inicial na versão demo
 		const anoInicial = parseInt(dados.dataInicial.split('-')[0]);
-		const anoFinal = anoInicial; // Limitar ao mesmo ano (apenas 2026 na demo)
+
+		// Criar uma cópia dos dados para não afetar o objeto original
+		const dadosDemo = JSON.parse(JSON.stringify(dados));
+
+		// Forçar data final igual à inicial
+		dadosDemo.dataFinal = dadosDemo.dataInicial;
+		console.log('Demo: Forçando ano final igual ao inicial:', dadosDemo.dataFinal);
 
 		// Calcular impacto inicial
-		const impactoBase = this.calcularImpactoCapitalGiro(dados, anoInicial);
+		const impactoBase = this.calcularImpactoCapitalGiro(dadosDemo, anoInicial);
 
-		// Simular apenas o ano inicial na versão demo
+		// Simular apenas para o ano inicial
 		const projecaoTemporal = this.simularPeriodoTransicao(
-			dados, 
-			anoInicial, 
-			anoFinal, 
-			dados.cenario, 
-			dados.taxaCrescimento
+			dadosDemo,
+			anoInicial,
+			anoInicial, // Forçar ano final igual ao inicial
+			dadosDemo.cenario,
+			dadosDemo.taxaCrescimento
 		);
 
-		// Adicionar indicador de versão demo
+		// Marcar como versão demo
 		projecaoTemporal.demoVersion = true;
 		projecaoTemporal.fullVersionMessage = "A simulação multi-anual (2026-2033) está disponível na versão completa.";
 
-		// Armazenar memória de cálculo
-		const memoriaCalculo = this.gerarMemoriaCalculo(dados, anoInicial, anoFinal);
+		// Armazenar memória de cálculo limitada
+		const memoriaCalculo = this.gerarMemoriaCalculo(dadosDemo, anoInicial, anoInicial);
 
 		// Resultados completos
 		const resultados = {
@@ -865,8 +872,7 @@ window.SimuladorFluxoCaixa = {
 			demoVersion: true
 		};
 
-		console.log('Simulação concluída com sucesso:', resultados);
-
+		console.log('Simulação demo concluída com sucesso:', resultados);
 		return resultados;
 	},
     

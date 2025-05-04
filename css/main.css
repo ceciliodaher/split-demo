@@ -370,3 +370,30 @@ button:disabled,
     cursor: not-allowed;
     opacity: 0.7;
 }
+
+/* Adicionar ao arquivo css/main.css */
+.premium-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    border-radius: 5px;
+}
+
+.premium-overlay span {
+    color: white;
+    font-weight: bold;
+    background-color: #ff5722;
+    padding: 8px 16px;
+    border-radius: 4px;
+}
+
+.chart-container {
+    position: relative;
+}

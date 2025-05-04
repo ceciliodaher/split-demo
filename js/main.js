@@ -203,24 +203,49 @@ const DemoVersionManager = {
     
     setupDemoLimitations: function() {
         // Limitar anos de projeção
+        // Adicionar ao início da função DemoVersionManager.setupDemoLimitations em js/main.js
+        // Garantir que o campo de data final não possa ser editado
         const dataFinalInput = document.getElementById('data-final');
         if (dataFinalInput) {
+            // Definir o valor para o mesmo ano que a data inicial
+            const dataInicialInput = document.getElementById('data-inicial');
+            if (dataInicialInput && dataInicialInput.value) {
+                dataFinalInput.value = dataInicialInput.value;
+            }
+
+            // Aplicar atributos para torná-lo não editável
             dataFinalInput.setAttribute('readonly', 'readonly');
             dataFinalInput.style.backgroundColor = '#f0f0f0';
-            // Definir data final igual à inicial
-            dataFinalInput.addEventListener('focus', function() {
+            dataFinalInput.style.cursor = 'not-allowed';
+
+            // Adicionar evento para manter o valor igual ao da data inicial
+            dataInicialInput.addEventListener('change', function() {
+                dataFinalInput.value = this.value;
+            });
+
+            // Adicionar evento para bloquear tentativas de edição
+            dataFinalInput.addEventListener('click', function(e) {
+                e.preventDefault();
                 DemoVersionManager.showUpgradeModal('A simulação multi-anual está disponível apenas na versão completa');
             });
         }
         
         // Limitar exportação
+        // Bloquear botão de exportação para Excel de forma mais direta
         const btnExportarExcel = document.getElementById('btn-exportar-excel');
         if (btnExportarExcel) {
-            btnExportarExcel.addEventListener('click', function(e) {
+            // Substituir o handler do evento click
+            btnExportarExcel.onclick = function(e) {
                 e.preventDefault();
                 e.stopPropagation();
+                console.log('Clique no botão de exportação para Excel bloqueado');
                 DemoVersionManager.showUpgradeModal('A exportação para Excel está disponível apenas na versão completa');
-            });
+                return false;
+            };
+
+            // Adicionar classes visuais para indicar que está desativado
+            btnExportarExcel.classList.add('disabled-premium');
+            btnExportarExcel.innerHTML += ' <span class="premium-tag">Premium</span>';
         }
         
         // Limitar quantidade de setores disponíveis
@@ -233,60 +258,94 @@ const DemoVersionManager = {
         this.limitCalculationMemory();
     },
     
+    // Melhorar a função limitAvailableSectors em js/main.js
     limitAvailableSectors: function() {
-        // Lista de setores permitidos na demo
-        const allowedSectors = ['comercio', 'industria', 'servicos', 'construcao', 'tecnologia'];
-        
+        console.log('Configurando limitação de setores');
+
+        // Lista de setores permitidos na demo (3-5 setores)
+        const allowedSectors = ['comercio', 'industria', 'servicos'];
+
         // Aplicar limitação ao dropdown de setores
-        const sectorSelect = document.getElementById('setor');
-        if (sectorSelect) {
-            // Observar carregamento do dropdown
-            const observer = new MutationObserver(function(mutations) {
+        setTimeout(function() {
+            const sectorSelect = document.getElementById('setor');
+            if (sectorSelect) {
+                console.log('Dropdown de setores encontrado, aplicando limitações');
+
+                // Processar todas as opções existentes
                 const options = sectorSelect.querySelectorAll('option');
-                
-                // Processar apenas uma vez quando houver opções
-                if (options.length > 1) {
-                    options.forEach(option => {
-                        if (option.value && !allowedSectors.includes(option.value)) {
-                            option.disabled = true;
-                            option.text = option.text + ' (Versão Completa)';
-                        }
-                    });
-                    
-                    observer.disconnect();
-                }
-            });
-            
-            observer.observe(sectorSelect, { childList: true });
-        }
-    },
-    
-    limitMitigationStrategies: function() {
-        // Bloquear estratégias não disponíveis na demo
-        document.addEventListener('DOMContentLoaded', function() {
-            // Aguardar carregamento completo
-            setTimeout(() => {
-                // Estratégias permitidas na demo
-                const allowedStrategies = ['ajuste-precos', 'renegociacao-prazos'];
-                
-                // Bloquear abas de estratégias não permitidas
-                const strategyTabs = document.querySelectorAll('.strategy-tab-button');
-                strategyTabs.forEach(tab => {
-                    const tabId = tab.getAttribute('data-strategy-tab');
-                    if (!allowedStrategies.includes(tabId)) {
-                        tab.classList.add('disabled');
-                        tab.setAttribute('disabled', 'disabled');
-                        tab.innerHTML += ' <span class="demo-tag">Versão Completa</span>';
-                        
-                        tab.addEventListener('click', function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            DemoVersionManager.showUpgradeModal('A estratégia ' + tab.textContent.replace(' Versão Completa', '') + ' está disponível apenas na versão completa');
-                        });
+                options.forEach(option => {
+                    if (option.value && !allowedSectors.includes(option.value)) {
+                        console.log('Desabilitando setor:', option.value);
+                        option.disabled = true;
+                        option.text = option.text + ' (Versão Completa)';
                     }
                 });
-            }, 500);
-        });
+
+                // Observar mudanças futuras no dropdown (para casos de carregamento dinâmico)
+                const observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.type === 'childList') {
+                            const newOptions = sectorSelect.querySelectorAll('option:not([disabled])');
+                            newOptions.forEach(option => {
+                                if (option.value && !allowedSectors.includes(option.value)) {
+                                    console.log('Desabilitando novo setor:', option.value);
+                                    option.disabled = true;
+                                    option.text = option.text + ' (Versão Completa)';
+                                }
+                            });
+                        }
+                    });
+                });
+
+                observer.observe(sectorSelect, { childList: true, subtree: true });
+            }
+        }, 500);
+    },
+
+    // Melhorar a função limitMitigationStrategies em js/main.js
+    limitMitigationStrategies: function() {
+        console.log('Configurando limitação de estratégias');
+
+        // Estratégias permitidas na demo
+        const allowedStrategies = ['ajuste-precos', 'renegociacao-prazos'];
+
+        // Aplicar bloqueio às estratégias não permitidas
+        setTimeout(function() {
+            // Bloquear abas de estratégias
+            const strategyTabs = document.querySelectorAll('.strategy-tab-button');
+            console.log('Abas de estratégias encontradas:', strategyTabs.length);
+
+            strategyTabs.forEach(tab => {
+                const tabId = tab.getAttribute('data-strategy-tab');
+                if (tabId && !allowedStrategies.includes(tabId)) {
+                    console.log('Desabilitando estratégia:', tabId);
+
+                    // Desabilitar visualmente
+                    tab.classList.add('disabled');
+                    tab.setAttribute('disabled', 'disabled');
+
+                    // Adicionar indicador visual
+                    if (!tab.innerHTML.includes('Versão Completa')) {
+                        tab.innerHTML += ' <span class="demo-tag">Versão Completa</span>';
+                    }
+
+                    // Substituir evento de clique
+                    tab.onclick = function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('Clique em estratégia bloqueada:', tabId);
+                        DemoVersionManager.showUpgradeModal('A estratégia ' + tab.textContent.replace(' Versão Completa', '') + ' está disponível apenas na versão completa');
+                        return false;
+                    };
+
+                    // Ocultar o conteúdo da aba
+                    const tabContent = document.querySelector('.strategy-tab-content[data-strategy-tab="' + tabId + '"]');
+                    if (tabContent) {
+                        tabContent.style.display = 'none';
+                    }
+                }
+            });
+        }, 1000);
     },
     
     limitCalculationMemory: function() {
@@ -354,21 +413,69 @@ const DemoVersionManager = {
         modal.style.display = 'block';
     },
     
+    // Substituir a função setupNotifications em js/main.js
     setupNotifications: function() {
-        // Adicionar notificações para recursos premium
-        document.querySelectorAll('.chart-container').forEach((container, index) => {
-            // Limitar a exibição de apenas 2 gráficos na demo
-            if (index > 1) {
-                container.classList.add('feature-blocked');
-                container.addEventListener('click', function() {
-                    DemoVersionManager.showUpgradeModal('Gráficos adicionais estão disponíveis na versão completa');
-                });
-            }
-        });
+        console.log('Configurando notificações e limitações de gráficos');
+
+        // Implementação mais robusta para limitar gráficos
+        setTimeout(function() {
+            // Selecionar todos os containers de gráficos
+            const chartContainers = document.querySelectorAll('.chart-container');
+            console.log('Containers de gráficos encontrados:', chartContainers.length);
+
+            // Aplicar limitação apenas aos gráficos além dos 2 primeiros
+            chartContainers.forEach((container, index) => {
+                if (index > 1) {
+                    console.log('Bloqueando gráfico:', index);
+
+                    // Aplicar overlay de bloqueio
+                    container.classList.add('feature-blocked');
+
+                    // Desabilitar interatividade
+                    const canvas = container.querySelector('canvas');
+                    if (canvas) {
+                        canvas.style.pointerEvents = 'none';
+                        canvas.style.filter = 'blur(3px)';
+                    }
+
+                    // Adicionar overlay com mensagem
+                    const overlay = document.createElement('div');
+                    overlay.className = 'premium-overlay';
+                    overlay.innerHTML = '<span>Disponível na versão completa</span>';
+                    container.appendChild(overlay);
+
+                    // Adicionar evento de clique para mostrar modal
+                    container.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        DemoVersionManager.showUpgradeModal('Gráficos adicionais estão disponíveis na versão completa');
+                    });
+                }
+            });
+        }, 1000); // Delay para garantir que os gráficos já foram renderizados
     }
 };
 
-// Inicializar gerenciador da versão demo
+// Garantir que o DemoVersionManager seja inicializado corretamente
+// Adicionar ao final do arquivo js/main.js
 document.addEventListener('DOMContentLoaded', function() {
-    DemoVersionManager.init();
+    console.log('Inicializando DemoVersionManager');
+    
+    // Verificar se o DemoVersionManager já existe
+    if (typeof DemoVersionManager === 'undefined') {
+        console.error('DemoVersionManager não encontrado, definindo agora');
+        
+        // Definir o objeto DemoVersionManager caso não exista
+        window.DemoVersionManager = {
+            // Funções existentes...
+        };
+    }
+    
+    // Inicializar o DemoVersionManager
+    try {
+        window.DemoVersionManager.init();
+        console.log('DemoVersionManager inicializado com sucesso');
+    } catch (error) {
+        console.error('Erro ao inicializar DemoVersionManager:', error);
+    }
 });
