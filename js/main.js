@@ -7,21 +7,21 @@ document.addEventListener('DOMContentLoaded', function() {
 // Substituir todo o conteúdo relacionado ao DemoVersionManager em js/main.js
 // Adicionar no início do arquivo, após as outras importações
 
-// Gerenciamento de recursos da versão demo
-window.DemoVersionManager = {
-    // Modificar em js/main.js, dentro do objeto DemoVersionManager.init()
-// Modificar em js/main.js, dentro do objeto DemoVersionManager.init()
-// Atualizar o método init para incluir a nova função:
-init: function() {
-    // Inicializar limitações da versão demo
-    this.setupDemoLimitations();
-    // Inicializar eventos do modal de upgrade
-    this.setupUpgradeModal();
-    // Adicionar notificações de limitação
-    this.setupNotifications();
-    // Chamar explicitamente a limitação das abas premium adicionais
-    this.limitAdditionalPremiumTabs();
-},
+// Modificar o DemoVersionManager para incluir todas as funções em ordem correta
+const DemoVersionManager = {
+    // Define todas as funções primeiro, antes de chamar qualquer uma delas
+    init: function() {
+        // Inicializar limitações da versão demo
+        this.setupDemoLimitations();
+        // Inicializar eventos do modal de upgrade
+        this.setupUpgradeModal();
+        // Adicionar notificações de limitação
+        this.setupNotifications();
+        // Bloquear acesso completo às abas premium
+        this.blockPremiumTabs();
+    },
+
+    
     setupDemoLimitations: function() {
         console.log('Configurando limitações da versão demo');
         // Limitar anos de projeção
@@ -148,36 +148,7 @@ init: function() {
             // Adicionar indicador visual
             memoryTab.innerHTML += ' <small class="premium-tag">Premium</small>';
         }
-    },
-    
-    // Agora, adicione uma nova função similar para as outras abas premium:
-    limitAdditionalPremiumTabs: function() {
-        // Lista de abas premium adicionais
-        const premiumTabs = [
-            {id: 'configuracoes', name: 'Configurações'},
-            {id: 'ajuda', name: 'Ajuda e Documentação'}
-        ];
-
-        // Aplicar a mesma limitação a cada aba premium
-        premiumTabs.forEach(tab => {
-            const tabButton = document.querySelector('.tab-button[data-tab="' + tab.id + '"]');
-            if (tabButton) {
-                // Clonar exatamente o mesmo comportamento que funciona para a aba "Memória de Cálculo"
-                tabButton.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    window.DemoVersionManager.showUpgradeModal('A aba ' + tab.name + ' está disponível apenas na versão completa');
-                });
-
-                // Adicionar indicador visual
-                if (!tabButton.innerHTML.includes('Premium')) {
-                    tabButton.innerHTML += ' <small class="premium-tag">Premium</small>';
-                }
-            } else {
-                console.warn('Aba premium não encontrada:', tab.id);
-            }
-        });
-    },
+    },    
 
     setupUpgradeModal: function() {
         console.log('Configurando modal de upgrade');
@@ -208,6 +179,198 @@ init: function() {
         window.addEventListener('click', function(e) {
             if (e.target === modal) {
                 modal.style.display = 'none';
+            }
+        });
+    },
+    
+    showUpgradeModal: function(message) {
+        console.log('Exibindo modal de upgrade com mensagem:', message);
+        const modal = document.getElementById('modal-upgrade');
+        
+        if (!modal) {
+            console.error('Modal de upgrade não encontrado');
+            this.createUpgradeElements();
+            setTimeout(() => this.showUpgradeModal(message), 200);
+            return;
+        }
+
+        // Adicionar mensagem personalizada se fornecida
+        if (message) {
+            const messageEl = document.createElement('div');
+            messageEl.className = 'upgrade-message';
+            messageEl.textContent = message;
+
+            const modalBody = modal.querySelector('.modal-body');
+            if (modalBody) {
+                // Remover mensagem anterior se existir
+                const existingMessage = modalBody.querySelector('.upgrade-message');
+                if (existingMessage) {
+                    modalBody.removeChild(existingMessage);
+                }
+
+                // Inserir nova mensagem no início
+                modalBody.insertBefore(messageEl, modalBody.firstChild);
+            }
+        }
+
+        modal.style.display = 'block';
+    },
+
+    setupNotifications: function() {
+        console.log('Configurando notificações para recursos premium');
+        // Adicionar notificações para recursos premium (gráficos)
+        setTimeout(() => {
+            const chartContainers = document.querySelectorAll('.chart-container');
+            console.log('Containers de gráficos encontrados:', chartContainers.length);
+            
+            // Limitar a exibição de apenas 2 gráficos na demo
+            chartContainers.forEach((container, index) => {
+                if (index > 1) {
+                    console.log('Bloqueando gráfico:', index);
+                    container.classList.add('feature-blocked');
+                    
+                    // Adicionar overlay com mensagem
+                    const overlay = document.createElement('div');
+                    overlay.className = 'premium-overlay';
+                    overlay.innerHTML = '<span>Disponível na versão completa</span>';
+                    container.appendChild(overlay);
+                    
+                    container.addEventListener('click', function() {
+                        window.DemoVersionManager.showUpgradeModal('Gráficos adicionais estão disponíveis na versão completa');
+                    });
+                }
+            });
+        }, 1000);
+    },
+    
+    // ADICIONAR: Nova função para bloquear abas premium permanentemente
+     // Nova função para bloquear abas premium - modificada para não chamar outras funções
+    blockPremiumTabs: function() {
+        console.log("Bloqueando abas premium...");
+        
+        // Lista de abas premium que devem ser bloqueadas
+        const premiumTabs = ['configuracoes', 'ajuda'];
+        
+        // Bloquear acesso às abas premium
+        premiumTabs.forEach(tabId => {
+            // 1. Bloquear acesso à aba
+            const tabButton = document.querySelector(`.tab-button[data-tab="${tabId}"]`);
+            if (tabButton) {
+                console.log(`Bloqueando aba: ${tabId}`);
+                
+                // Adicionar classe visual de premium
+                tabButton.classList.add('premium-tab');
+                
+                // Verificar se a tag premium já existe para evitar duplicação
+                if (!tabButton.querySelector('.premium-tag')) {
+                    tabButton.innerHTML += ' <small class="premium-tag">Premium</small>';
+                }
+                
+                // Remover todos os event listeners anteriores para evitar duplicação
+                const newTabButton = tabButton.cloneNode(true);
+                tabButton.parentNode.replaceChild(newTabButton, tabButton);
+                
+                // Adicionar novo event listener
+                newTabButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Mostrar modal de upgrade
+                    DemoVersionManager.showUpgradeModal(`A funcionalidade "${newTabButton.textContent.replace(' Premium', '')}" está disponível apenas na versão completa`);
+                    
+                    // Garantir que a aba não seja ativada
+                    const activeTab = document.querySelector('.tab-button.active');
+                    if (activeTab) {
+                        activeTab.click(); // Voltar para a aba ativa anterior
+                    }
+                });
+            }
+            
+            // 2. Bloquear acesso ao conteúdo da aba aplicando classe de bloqueio
+            const tabContent = document.querySelector(`.tab-content[data-tab="${tabId}"]`);
+            if (tabContent) {
+                console.log(`Bloqueando conteúdo da aba: ${tabId}`);
+                
+                // Aplicar classe de bloqueio que irá desfocar e sobrepor o conteúdo
+                tabContent.classList.add('premium-content-blocked');
+                
+                // Verificar se o overlay já existe para evitar duplicação
+                if (!tabContent.querySelector('.premium-overlay')) {
+                    // Adicionar overlay com mensagem de recurso premium
+                    const overlay = document.createElement('div');
+                    overlay.className = 'premium-overlay';
+                    overlay.innerHTML = `
+                        <div class="premium-message">
+                            <h3><i class="premium-icon">⭐</i> Recurso disponível apenas na versão completa</h3>
+                            <p>Adquira a versão completa para acessar todas as funcionalidades.</p>
+                            <button class="btn-upgrade-overlay">Adquirir Versão Completa</button>
+                        </div>
+                    `;
+                    tabContent.appendChild(overlay);
+                    
+                    // Adicionar evento de clique no botão de upgrade do overlay
+                    const upgradeButton = overlay.querySelector('.btn-upgrade-overlay');
+                    if (upgradeButton) {
+                        upgradeButton.addEventListener('click', function() {
+                            DemoVersionManager.showUpgradeModal();
+                        });
+                    }
+                }
+            }
+        });
+        
+        // Configurar um intervalo para verificar periodicamente se os bloqueios ainda estão aplicados
+        // Isso substitui o MutationObserver que estava causando problemas
+        setInterval(this.checkPremiumTabsBlocking, 1000);
+    },
+    
+    // Nova função para verificar periodicamente se os bloqueios das abas premium ainda estão aplicados
+    checkPremiumTabsBlocking: function() {
+        const premiumTabs = ['configuracoes', 'ajuda'];
+        
+        premiumTabs.forEach(tabId => {
+            const tabContent = document.querySelector(`.tab-content[data-tab="${tabId}"]`);
+            
+            // Se a aba existe e está visível (o que não deveria acontecer), reaplicar bloqueio
+            if (tabContent && 
+                tabContent.style.display !== 'none' && 
+                !tabContent.classList.contains('premium-content-blocked')) {
+                
+                console.log(`Reforçando bloqueio na aba: ${tabId}`);
+                
+                // Reaplicar classe de bloqueio
+                tabContent.classList.add('premium-content-blocked');
+                
+                // Verificar se o overlay existe, se não, adicionar
+                if (!tabContent.querySelector('.premium-overlay')) {
+                    const overlay = document.createElement('div');
+                    overlay.className = 'premium-overlay';
+                    overlay.innerHTML = `
+                        <div class="premium-message">
+                            <h3><i class="premium-icon">⭐</i> Recurso disponível apenas na versão completa</h3>
+                            <p>Adquira a versão completa para acessar todas as funcionalidades.</p>
+                            <button class="btn-upgrade-overlay">Adquirir Versão Completa</button>
+                        </div>
+                    `;
+                    tabContent.appendChild(overlay);
+                    
+                    // Adicionar evento de clique no botão de upgrade do overlay
+                    const upgradeButton = overlay.querySelector('.btn-upgrade-overlay');
+                    if (upgradeButton) {
+                        upgradeButton.addEventListener('click', function() {
+                            DemoVersionManager.showUpgradeModal();
+                        });
+                    }
+                }
+                
+                // Ocultar a aba forçosamente
+                tabContent.style.display = 'none';
+                
+                // Reativar a primeira aba (não premium)
+                const firstTab = document.querySelector('.tab-button:not(.premium-tab)');
+                if (firstTab) {
+                    firstTab.click();
+                }
             }
         });
     },
@@ -470,66 +633,44 @@ init: function() {
         // Configurar os novos elementos
         setTimeout(() => this.setupUpgradeModal(), 100);
     },
+    
+    // ADICIONAR: Nova função para verificar e reaplicar bloqueios se necessário
+    checkAndReapplyTabBlocks: function() {
+        // Lista de abas premium que devem estar bloqueadas
+        const premiumTabs = ['configuracoes', 'ajuda'];
 
-    showUpgradeModal: function(message) {
-        console.log('Exibindo modal de upgrade com mensagem:', message);
-        const modal = document.getElementById('modal-upgrade');
-        
-        if (!modal) {
-            console.error('Modal de upgrade não encontrado');
-            this.createUpgradeElements();
-            setTimeout(() => this.showUpgradeModal(message), 200);
-            return;
-        }
+        // Verificar cada aba premium
+        premiumTabs.forEach(tabId => {
+            const tabContent = document.querySelector(`.tab-content[data-tab="${tabId}"]`);
 
-        // Adicionar mensagem personalizada se fornecida
-        if (message) {
-            const messageEl = document.createElement('div');
-            messageEl.className = 'upgrade-message';
-            messageEl.textContent = message;
+            // Se a aba existe e não está bloqueada corretamente, reaplicar bloqueio
+            if (tabContent && !tabContent.classList.contains('premium-content-blocked')) {
+                tabContent.classList.add('premium-content-blocked');
 
-            const modalBody = modal.querySelector('.modal-body');
-            if (modalBody) {
-                // Remover mensagem anterior se existir
-                const existingMessage = modalBody.querySelector('.upgrade-message');
-                if (existingMessage) {
-                    modalBody.removeChild(existingMessage);
-                }
-
-                // Inserir nova mensagem no início
-                modalBody.insertBefore(messageEl, modalBody.firstChild);
-            }
-        }
-
-        modal.style.display = 'block';
-    },
-
-    setupNotifications: function() {
-        console.log('Configurando notificações para recursos premium');
-        // Adicionar notificações para recursos premium (gráficos)
-        setTimeout(() => {
-            const chartContainers = document.querySelectorAll('.chart-container');
-            console.log('Containers de gráficos encontrados:', chartContainers.length);
-            
-            // Limitar a exibição de apenas 2 gráficos na demo
-            chartContainers.forEach((container, index) => {
-                if (index > 1) {
-                    console.log('Bloqueando gráfico:', index);
-                    container.classList.add('feature-blocked');
-                    
-                    // Adicionar overlay com mensagem
+                // Verificar se o overlay existe, se não, adicionar
+                if (!tabContent.querySelector('.premium-overlay')) {
                     const overlay = document.createElement('div');
                     overlay.className = 'premium-overlay';
-                    overlay.innerHTML = '<span>Disponível na versão completa</span>';
-                    container.appendChild(overlay);
-                    
-                    container.addEventListener('click', function() {
-                        window.DemoVersionManager.showUpgradeModal('Gráficos adicionais estão disponíveis na versão completa');
-                    });
+                    overlay.innerHTML = `
+                        <div class="premium-message">
+                            <h3><i class="premium-icon">⭐</i> Recurso disponível apenas na versão completa</h3>
+                            <p>Adquira a versão completa para acessar todas as funcionalidades.</p>
+                            <button class="btn-upgrade-overlay">Adquirir Versão Completa</button>
+                        </div>
+                    `;
+                    tabContent.appendChild(overlay);
+
+                    // Adicionar evento de clique no botão de upgrade do overlay
+                    const upgradeButton = overlay.querySelector('.btn-upgrade-overlay');
+                    if (upgradeButton) {
+                        upgradeButton.addEventListener('click', function() {
+                            DemoVersionManager.showUpgradeModal();
+                        });
+                    }
                 }
-            });
-        }, 1000);
-    }
+            }
+        });
+    },
 };
 
 // Garantir inicialização após carregamento do DOM
@@ -537,7 +678,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM carregado, inicializando DemoVersionManager');
     setTimeout(() => {
         try {
-            window.DemoVersionManager.init();
+            DemoVersionManager.init();
             console.log('DemoVersionManager inicializado com sucesso');
         } catch (error) {
             console.error('Erro ao inicializar DemoVersionManager:', error);
