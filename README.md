@@ -1,2 +1,2 @@
-# split-demo
+# split-payment-novo
 
