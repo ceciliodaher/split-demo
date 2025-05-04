@@ -21,6 +21,7 @@ A versão de demonstração deve:
 3. **Estratégias de Mitigação**: Limite a 2 estratégias na versão demo (Ajuste de Preços e Renegociação de Prazos)
 4. **Exportação Parcial**: Permita exportar apenas PDF simplificado (sem Excel e sem memória de cálculo)
 5. **Gráficos Básicos**: Exiba apenas os gráficos essenciais (2 dos 5 disponíveis)
+6. **Abas Limitadas**: Limitar o acesso somente às abas 'Simulação' e 'Estratégias de Mitigação'. Todas as demais serão um recurso premium.
 
 ### 2.2. Recursos Premium Exclusivos para Versão Completa
 

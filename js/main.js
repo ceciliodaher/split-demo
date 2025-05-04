@@ -9,15 +9,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Gerenciamento de recursos da versão demo
 window.DemoVersionManager = {
-    init: function() {
-        console.log('Inicializando DemoVersionManager');
-        // Inicializar limitações da versão demo
-        this.setupDemoLimitations();
-        // Inicializar eventos do modal de upgrade
-        this.setupUpgradeModal();
-        // Adicionar notificações de limitação
-        this.setupNotifications();
-    },
+    // Modificar em js/main.js, dentro do objeto DemoVersionManager.init()
+// Modificar em js/main.js, dentro do objeto DemoVersionManager.init()
+init: function() {
+    // Inicializar limitações da versão demo
+    this.setupDemoLimitations();
+    // Inicializar eventos do modal de upgrade
+    this.setupUpgradeModal();
+    // Adicionar notificações de limitação
+    this.setupNotifications();
+    // Adicionar esta nova linha para limitar acesso às abas adicionais
+    this.limitPremiumTabs();
+},
 
     setupDemoLimitations: function() {
         console.log('Configurando limitações da versão demo');
@@ -497,6 +500,94 @@ window.DemoVersionManager = {
                 }
             });
         }, 1000);
+    },
+    
+    // Adicionar ao objeto DemoVersionManager no arquivo js/main.js
+    limitPremiumTabs: function() {
+        // Lista de abas que devem ser limitadas na versão demo (além da memória de cálculo que já está implementada)
+        const premiumTabs = ['configuracoes', 'ajuda'];
+
+        // Aplicar limitação às abas listadas
+        premiumTabs.forEach(tabId => {
+            const tabButton = document.querySelector(`.tab-button[data-tab="${tabId}"]`);
+            if (tabButton) {
+                // Preservar o comportamento de navegação original para permitir a troca de abas
+                const originalClickHandler = tabButton.onclick;
+
+                // Substituir com novo manipulador de eventos
+                tabButton.addEventListener('click', function(e) {
+                    // Não prevenir o comportamento padrão completamente para permitir a navegação entre abas
+
+                    // Executar o handler original primeiro para navegar para a aba
+                    if (originalClickHandler) {
+                        originalClickHandler.call(this, e);
+                    } else {
+                        // Caso não exista handler original, implementar navegação padrão
+                        const tabId = this.getAttribute('data-tab');
+                        const allTabs = document.querySelectorAll('.tab-content');
+                        const allButtons = document.querySelectorAll('.tab-button');
+
+                        // Ocultar todas as abas
+                        allTabs.forEach(tab => tab.classList.remove('active'));
+                        allButtons.forEach(btn => btn.classList.remove('active'));
+
+                        // Exibir a aba selecionada
+                        document.getElementById(`tab-${tabId}`).classList.add('active');
+                        this.classList.add('active');
+                    }
+
+                    // Inserir banner de versão premium na aba após navegação
+                    setTimeout(() => {
+                        // Obter a aba atual
+                        const tabContent = document.getElementById(`tab-${tabId}`);
+
+                        // Verificar se o banner premium já existe
+                        if (tabContent && !tabContent.querySelector('.feature-blocked')) {
+                            // Armazenar o conteúdo original da aba (se ainda não armazenado)
+                            if (!tabContent.originalContent) {
+                                tabContent.originalContent = tabContent.innerHTML;
+                            }
+
+                            // Substituir todo o conteúdo da aba pelo banner premium
+                            tabContent.innerHTML = `
+                                <div class="feature-blocked" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: rgba(0, 0, 0, 0.7); z-index: 1000;">
+                                    <div style="text-align: center; color: white; padding: 20px; max-width: 80%;">
+                                        <h2>Disponível na versão completa</h2>
+                                        <p>Esta funcionalidade está disponível apenas na versão completa do simulador.</p>
+                                        <button id="btn-premium-${tabId}" class="btn btn-primary" style="margin-top: 20px;">Adquirir Versão Completa</button>
+                                    </div>
+                                </div>
+                            `;
+
+                            // Adicionar evento ao botão de upgrade
+                            setTimeout(() => {
+                                const upgradeButton = document.getElementById(`btn-premium-${tabId}`);
+                                if (upgradeButton) {
+                                    upgradeButton.addEventListener('click', function() {
+                                        DemoVersionManager.showUpgradeModal(`A aba ${tabButton.textContent.trim().replace('Premium', '')} está disponível apenas na versão completa`);
+                                    });
+                                }
+                            }, 100);
+                        }
+                    }, 100);
+                });
+
+                // Adicionar indicador visual premium se ainda não existe
+                if (!tabButton.innerHTML.includes('Premium')) {
+                    tabButton.innerHTML += ' <small class="premium-tag">Premium</small>';
+                }
+            }
+        });
+
+        // Também aplicar o mesmo comportamento à aba "Memória de Cálculo" caso não esteja implementado
+        const memoryTab = document.querySelector('.tab-button[data-tab="memoria"]');
+        if (memoryTab && !memoryTab.limitApplied) {
+            memoryTab.limitApplied = true; // Marcar que a limitação foi aplicada
+
+            if (!memoryTab.innerHTML.includes('Premium')) {
+                memoryTab.innerHTML += ' <small class="premium-tag">Premium</small>';
+            }
+        }
     }
 };
 
