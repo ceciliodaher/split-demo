@@ -937,3 +937,72 @@ function observarMudancasDeAba() {
         }
     });
 }
+
+// Função para adicionar o botão de rolagem ao modal
+function addScrollButton() {
+    // Verificar se o modal está presente
+    const modal = document.querySelector('.modal-content');
+    if (!modal) return;
+    
+    // Remover botão existente caso já tenha sido adicionado
+    const existingButton = document.querySelector('.scroll-indicator');
+    if (existingButton) existingButton.remove();
+    
+    // Criar botão de rolagem
+    const scrollButton = document.createElement('div');
+    scrollButton.className = 'scroll-indicator';
+    scrollButton.innerHTML = '↓';
+    scrollButton.title = 'Rolar para baixo';
+    
+    // Adicionar comportamento ao botão
+    scrollButton.addEventListener('click', function() {
+        modal.scrollBy({
+            top: 200,
+            behavior: 'smooth'
+        });
+    });
+    
+    // Adicionar o botão ao modal
+    modal.appendChild(scrollButton);
+    
+    // Verificar se o conteúdo requer rolagem
+    setTimeout(() => {
+        if (modal.scrollHeight > modal.clientHeight) {
+            scrollButton.classList.add('animate');
+        } else {
+            scrollButton.style.display = 'none';
+        }
+        
+        // Atualizar visibilidade do botão durante a rolagem
+        modal.addEventListener('scroll', function() {
+            const isBottom = modal.scrollHeight - modal.scrollTop <= modal.clientHeight + 50;
+            scrollButton.style.display = isBottom ? 'none' : 'flex';
+        });
+    }, 300);
+}
+
+// Função para inicializar o botão quando o modal for aberto
+function initScrollButton() {
+    // Busca todos os botões que abrem modais
+    const modalButtons = document.querySelectorAll('[data-modal]');
+    
+    modalButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Aguardar a abertura do modal
+            setTimeout(addScrollButton, 100);
+        });
+    });
+    
+    // Adicionar botão em modais já abertos
+    if (document.querySelector('.modal-content')) {
+        addScrollButton();
+    }
+}
+
+// Inicializar quando o DOM estiver pronto
+document.addEventListener('DOMContentLoaded', initScrollButton);
+
+// Para casos onde a página já está carregada
+if (document.readyState === 'complete') {
+    initScrollButton();
+}

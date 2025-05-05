@@ -69,11 +69,9 @@ body {
     padding-top: 48px; /* Valor que corresponde à altura do banner + padding */
 }
 
-/* Consolidar e ajustar as declarações de container */
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    margin-top: 48px; /* Aumentar para compensar adequadamente o banner */
     background: white;
     border-radius: 10px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
@@ -509,19 +507,19 @@ button:disabled,
     background-color: #e64a19;
 }
 
-/* Ajustar o banner de demonstração */
+/* Ajuste do banner de demonstração inspirado na estrutura do modal */
 .demo-banner {
     background-color: #ff5722;
     color: white;
     text-align: center;
-    padding: 12px 0; /* Aumentar o padding */
-    min-height: 24px; /* Definir altura mínima */
+    padding: 12px 0;
     font-weight: bold;
     position: fixed;
     top: 0;
+    left: 0;
     width: 100%;
     z-index: 9999;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Adicionar sombra para melhor visibilidade */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 /* Melhorar visibilidade do botão de upgrade */
@@ -809,4 +807,66 @@ button:disabled,
     .modal-content {
         max-width: 90%;
     }
+}
+
+/* Ajuste para modal de promoção */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Alterado de center para flex-start */
+    padding-top: 5vh; /* Adiciona espaço no topo */
+    z-index: 1000;
+    overflow-y: auto; /* Permite rolagem na página inteira */
+}
+
+.modal-content {
+    background-color: white;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 85vh; /* Limita altura a 85% da viewport */
+    overflow-y: auto; /* Adiciona rolagem no conteúdo do modal */
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+/* Estilo para botão de rolagem */
+.scroll-indicator {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    background-color: #4A90E2;
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: opacity 0.3s;
+    opacity: 0.7;
+    z-index: 1001;
+}
+
+.scroll-indicator:hover {
+    opacity: 1;
+}
+
+/* Animação de pulsação para o indicador de rolagem */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.scroll-indicator.animate {
+    animation: pulse 1.5s infinite;
 }
