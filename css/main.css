@@ -66,6 +66,7 @@ body {
     color: var(--dark-text);
     line-height: 1.6;
     padding: 20px;
+    padding-top: 48px; /* Valor que corresponde à altura do banner + padding */
 }
 
 .container {
@@ -506,36 +507,36 @@ button:disabled,
     background-color: #e64a19;
 }
 
+/* Ajuste do banner de demonstração inspirado na estrutura do modal */
 .demo-banner {
     background-color: #ff5722;
     color: white;
     text-align: center;
-    padding: 8px 0;
+    padding: 12px 0;
     font-weight: bold;
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     z-index: 9999;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
+/* Melhorar visibilidade do botão de upgrade */
 .upgrade-button {
     background-color: white;
     color: #ff5722;
-    padding: 4px 12px;
+    padding: 6px 14px; /* Aumentar o padding do botão */
     border-radius: 4px;
     margin-left: 10px;
     text-decoration: none;
     font-weight: bold;
+    display: inline-block; /* Garantir que é tratado como bloco */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); /* Adicionar sombreamento sutil */
 }
 
 .upgrade-button:hover {
     background-color: #f0f0f0;
-}
-
-.container {
-    margin-top: auto;
-    margin-bottom: 5px;
 }
 
 .feature-list {
