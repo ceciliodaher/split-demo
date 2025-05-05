@@ -15,6 +15,7 @@ const DemoVersionManager = {
         this.setupDemoLimitations();
         // Inicializar eventos do modal de upgrade
         this.setupUpgradeModal();
+        this.showCustomContactModal();
         // Adicionar notificações de limitação
         this.setupNotifications();
         // Bloquear acesso completo às abas premium
@@ -150,28 +151,33 @@ const DemoVersionManager = {
         }
     },    
 
+    // Adicionar no final do arquivo main.js, após a definição existente de DemoVersionManager
+    // Modificar a função setupUpgradeModal do DemoVersionManager (aproximadamente linha 193)
+
     setupUpgradeModal: function() {
-        console.log('Configurando modal de upgrade');
         const modal = document.getElementById('modal-upgrade');
+        const modalCustomContact = document.getElementById('modal-custom-contact');
         const btnUpgrade = document.getElementById('btn-upgrade');
-        
-        if (!modal || !btnUpgrade) {
-            console.error('Modal de upgrade não encontrado. Criando elementos...');
-            this.createUpgradeElements();
-            return;
-        }
-        
+        const closeBtns = modal.querySelectorAll('.close, .close-modal');
+        const closeCustomBtns = modalCustomContact.querySelectorAll('.close, .close-modal');
+
         // Abrir modal ao clicar no botão de upgrade
         btnUpgrade.addEventListener('click', function(e) {
             e.preventDefault();
             modal.style.display = 'block';
         });
 
-        // Configurar fechamento do modal
-        const closeBtns = modal.querySelectorAll('.close, .close-modal');
+        // Fechar modal
         closeBtns.forEach(btn => {
             btn.addEventListener('click', function() {
                 modal.style.display = 'none';
+            });
+        });
+
+        // Fechar modal de contato personalizado
+        closeCustomBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                modalCustomContact.style.display = 'none';
             });
         });
 
@@ -180,40 +186,96 @@ const DemoVersionManager = {
             if (e.target === modal) {
                 modal.style.display = 'none';
             }
+            if (e.target === modalCustomContact) {
+                modalCustomContact.style.display = 'none';
+            }
+        });
+
+        // Alternar entre abas de preços
+        const pricingTabButtons = document.querySelectorAll('.pricing-tab-button');
+        pricingTabButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Remover classe active de todos os botões
+                pricingTabButtons.forEach(btn => btn.classList.remove('active'));
+                // Adicionar classe active ao botão clicado
+                this.classList.add('active');
+
+                // Ocultar todas as abas de conteúdo
+                document.querySelectorAll('.pricing-tab-content').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+
+                // Mostrar a aba correspondente
+                const tabId = this.getAttribute('data-pricing-tab') + '-tab';
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        // Gerenciar botões de opções personalizadas
+        const customOptionButtons = document.querySelectorAll('.custom-option-button');
+        customOptionButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const option = this.getAttribute('data-option');
+                openCustomContactModal(option);
+            });
+        });
+
+        // Botão de envio do formulário de contato personalizado
+        const btnSendCustomRequest = document.getElementById('btn-send-custom-request');
+        btnSendCustomRequest.addEventListener('click', function() {
+            const form = document.getElementById('custom-contact-form');
+            if (form.checkValidity()) {
+                // Simulação de envio bem-sucedido
+                modalCustomContact.style.display = 'none';
+                DemoVersionManager.showUpgradeModal('Sua solicitação foi enviada com sucesso! Nossa equipe entrará em contato em breve.');
+                form.reset();
+            } else {
+                // Forçar validação visual do navegador
+                form.reportValidity();
+            }
         });
     },
-    
-    showUpgradeModal: function(message) {
-        console.log('Exibindo modal de upgrade com mensagem:', message);
-        const modal = document.getElementById('modal-upgrade');
-        
-        if (!modal) {
-            console.error('Modal de upgrade não encontrado');
-            this.createUpgradeElements();
-            setTimeout(() => this.showUpgradeModal(message), 200);
-            return;
+
+    // Adicionar esta nova função após setupUpgradeModal
+    showCustomContactModal: function(option) {
+        const modalCustomContact = document.getElementById('modal-custom-contact');
+        const optionDetails = document.getElementById('custom-option-details');
+        const optionInput = document.getElementById('contact-option');
+
+        // Definir o conteúdo com base na opção selecionada
+        let detailsHTML = '';
+        let optionTitle = '';
+
+        switch(option) {
+            case 'sped':
+                optionTitle = 'Importação de SPED';
+                detailsHTML = `
+                    <h4>${optionTitle}</h4>
+                    <p>Você está solicitando uma proposta para a funcionalidade de importação de arquivos SPED, que permite o preenchimento automático de valores no simulador.</p>
+                    <p>Esta funcionalidade é personalizada de acordo com suas necessidades específicas e integrada à versão completa do simulador.</p>
+                `;
+                break;
+            case 'integration':
+                optionTitle = 'Integração com Sistemas';
+                detailsHTML = `
+                    <h4>${optionTitle}</h4>
+                    <p>Você está solicitando uma proposta para integração do simulador com seu sistema atual.</p>
+                    <p>Nossa equipe desenvolverá uma solução personalizada para conectar o simulador ao seu ERP ou sistema financeiro para sincronização automática de dados.</p>
+                `;
+                break;
+            case 'consulting':
+                optionTitle = 'Consultoria Personalizada';
+                detailsHTML = `
+                    <h4>${optionTitle}</h4>
+                    <p>Você está solicitando uma proposta para serviços de consultoria especializada em Split Payment.</p>
+                    <p>Nossa equipe oferecerá suporte para análise dos resultados da simulação e elaboração de estratégias específicas para seu negócio.</p>
+                `;
+                break;
         }
 
-        // Adicionar mensagem personalizada se fornecida
-        if (message) {
-            const messageEl = document.createElement('div');
-            messageEl.className = 'upgrade-message';
-            messageEl.textContent = message;
-
-            const modalBody = modal.querySelector('.modal-body');
-            if (modalBody) {
-                // Remover mensagem anterior se existir
-                const existingMessage = modalBody.querySelector('.upgrade-message');
-                if (existingMessage) {
-                    modalBody.removeChild(existingMessage);
-                }
-
-                // Inserir nova mensagem no início
-                modalBody.insertBefore(messageEl, modalBody.firstChild);
-            }
-        }
-
-        modal.style.display = 'block';
+        optionDetails.innerHTML = detailsHTML;
+        optionInput.value = option;
+        modalCustomContact.style.display = 'block';
     },
 
     setupNotifications: function() {
@@ -672,6 +734,11 @@ const DemoVersionManager = {
         });
     },
 };
+
+// Adicionar esta função depois da definição de DemoVersionManager
+function openCustomContactModal(option) {
+    DemoVersionManager.showCustomContactModal(option);
+}
 
 // Garantir inicialização após carregamento do DOM
 document.addEventListener('DOMContentLoaded', function() {

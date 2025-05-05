@@ -1026,32 +1026,130 @@
         </div>
     </div>
     
-    <!-- Adicionar antes do fechamento do body (linha 890) -->
+    <!-- Substituir o código do modal de upgrade na linha 890 -->
 	<div id="modal-upgrade" class="modal">
 		<div class="modal-content">
 			<div class="modal-header">
 				<h3>Adquira a Versão Completa</h3>
-				<span class="close">&times;</span>
+				<span class="close">×</span>
 			</div>
 			<div class="modal-body">
-				<h4>Recursos exclusivos da versão completa:</h4>
-				<ul class="feature-list">
-					<li><i class="feature-icon">✓</i> Simulação completa para todos os anos (2026-2033)</li>
-					<li><i class="feature-icon">✓</i> Acesso a todos os setores econômicos</li>
-					<li><i class="feature-icon">✓</i> 6 estratégias avançadas de mitigação</li>
-					<li><i class="feature-icon">✓</i> Exportação detalhada para Excel</li>
-					<li><i class="feature-icon">✓</i> Memória de cálculo completa</li>
-					<li><i class="feature-icon">✓</i> Combinação ótima de estratégias</li>
-					<li><i class="feature-icon">✓</i> Personalização de setores</li>
-				</ul>
-				<div class="pricing-info">
-					<p class="price">R$ 1.890,00</p>
-					<p class="price-detail">Licença anual com atualizações</p>
+				<div class="upgrade-message"></div>
+
+				<div class="discount-banner">
+					<div class="discount-badge">LANÇAMENTO</div>
+					<p>De <span class="old-price">R$ 1.890,00</span> por <span class="new-price">R$ 1.290,00</span></p>
+					<p class="discount-detail">Oferta para os primeiros 100 clientes!</p>
+				</div>
+
+				<div class="pricing-options">
+					<div class="pricing-tab-buttons">
+						<button class="pricing-tab-button active" data-pricing-tab="package">Pacote Completo</button>
+						<button class="pricing-tab-button" data-pricing-tab="customized">Opções Personalizadas</button>
+					</div>
+
+					<div class="pricing-tab-content active" id="package-tab">
+						<h4>Recursos exclusivos da versão completa:</h4>
+						<ul class="feature-list">
+							<li><i class="feature-icon">✓</i> Simulação completa para todos os anos (2026-2033)</li>
+							<li><i class="feature-icon">✓</i> Acesso a todos os setores econômicos</li>
+							<li><i class="feature-icon">✓</i> 6 estratégias avançadas de mitigação</li>
+							<li><i class="feature-icon">✓</i> Exportação detalhada para Excel</li>
+							<li><i class="feature-icon">✓</i> Memória de cálculo completa</li>
+							<li><i class="feature-icon">✓</i> Combinação ótima de estratégias</li>
+							<li><i class="feature-icon">✓</i> Personalização de setores</li>
+						</ul>
+						<div class="pricing-info">
+							<p class="price">R$ 1.290,00</p>
+							<p class="price-detail">Licença anual com atualizações</p>
+						</div>
+					</div>
+
+					<div class="pricing-tab-content" id="customized-tab">
+						<h4>Opções personalizadas adicionais:</h4>
+						<div class="custom-options">
+							<div class="custom-option">
+								<div class="custom-option-header">
+									<h5>Importação de SPED</h5>
+									<span class="custom-option-badge">PERSONALIZADO</span>
+								</div>
+								<p>Permite o preenchimento automático de valores a partir de arquivos SPED, reduzindo tempo de entrada de dados e minimizando erros.</p>
+								<div class="custom-option-footer">
+									<p>Preço sob consulta</p>
+									<button class="custom-option-button" data-option="sped">Solicitar Proposta</button>
+								</div>
+							</div>
+
+							<div class="custom-option">
+								<div class="custom-option-header">
+									<h5>Integração com Sistemas</h5>
+									<span class="custom-option-badge">PERSONALIZADO</span>
+								</div>
+								<p>Integração com seu ERP ou sistema financeiro para sincronização automática de dados e análise contínua do impacto do Split Payment.</p>
+								<div class="custom-option-footer">
+									<p>Preço sob consulta</p>
+									<button class="custom-option-button" data-option="integration">Solicitar Proposta</button>
+								</div>
+							</div>
+
+							<div class="custom-option">
+								<div class="custom-option-header">
+									<h5>Consultoria Personalizada</h5>
+									<span class="custom-option-badge">PERSONALIZADO</span>
+								</div>
+								<p>Suporte especializado para análise dos resultados e elaboração de estratégias específicas para seu negócio.</p>
+								<div class="custom-option-footer">
+									<p>Preço sob consulta</p>
+									<button class="custom-option-button" data-option="consulting">Solicitar Proposta</button>
+								</div>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 			<div class="modal-footer">
 				<a href="https://www.expertzy.com.br/adquirir-simulador" class="btn-primary">Adquirir Agora</a>
 				<button class="btn-secondary close-modal">Voltar ao Simulador</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Adicionar modal de contato personalizado -->
+	<div id="modal-custom-contact" class="modal">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h3>Solicitar Proposta Personalizada</h3>
+				<span class="close">×</span>
+			</div>
+			<div class="modal-body">
+				<div id="custom-option-details"></div>
+				<form id="custom-contact-form">
+					<div class="form-group">
+						<label for="contact-name">Nome</label>
+						<input type="text" id="contact-name" required>
+					</div>
+					<div class="form-group">
+						<label for="contact-email">Email</label>
+						<input type="email" id="contact-email" required>
+					</div>
+					<div class="form-group">
+						<label for="contact-phone">Telefone</label>
+						<input type="tel" id="contact-phone" required>
+					</div>
+					<div class="form-group">
+						<label for="contact-company">Empresa</label>
+						<input type="text" id="contact-company" required>
+					</div>
+					<div class="form-group">
+						<label for="contact-message">Detalhes adicionais</label>
+						<textarea id="contact-message" rows="4"></textarea>
+					</div>
+					<input type="hidden" id="contact-option" value="">
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button class="btn-primary" id="btn-send-custom-request">Enviar Solicitação</button>
+				<button class="btn-secondary close-modal">Cancelar</button>
 			</div>
 		</div>
 	</div>
