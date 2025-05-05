@@ -870,3 +870,176 @@ button:disabled,
 .scroll-indicator.animate {
     animation: pulse 1.5s infinite;
 }
+
+.banner {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    padding: 20px;
+    margin-bottom: 30px;
+    position: relative;
+    overflow: hidden;
+    border-left: 5px solid #007bff;
+}
+
+.demo-badge {
+    background-color: #dc3545;
+    color: white;
+    font-weight: bold;
+    padding: 6px 12px;
+    border-radius: 0 0 8px 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+}
+
+.banner-content {
+    padding-top: 30px;
+}
+
+.tagline {
+    font-size: 1.2rem;
+    color: #495057;
+    margin-bottom: 20px;
+}
+
+.features-limited {
+    background-color: rgba(255,193,7,0.1);
+    border-left: 3px solid #ffc107;
+    padding: 10px 15px;
+    margin-bottom: 20px;
+}
+
+.warning {
+    font-weight: bold;
+    color: #d63384;
+}
+
+.plans-showcase {
+    margin: 25px 0;
+}
+
+.plans-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.plan {
+    flex: 1;
+    min-width: 180px;
+    padding: 15px;
+    background-color: white;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    text-align: center;
+    transition: transform 0.2s ease;
+}
+
+.plan:hover {
+    transform: translateY(-5px);
+}
+
+.featured {
+    border: 2px solid #0d6efd;
+    position: relative;
+    z-index: 1;
+}
+
+.plan h4 {
+    color: #212529;
+    margin-bottom: 10px;
+}
+
+.price {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #0d6efd;
+    margin-bottom: 5px;
+}
+
+.price-monthly {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-bottom: 15px;
+}
+
+.plan-highlight {
+    background-color: #f8f9fa;
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    color: #343a40;
+}
+
+.cta-button {
+    background-color: #0d6efd;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    display: block;
+    margin: 20px auto 10px;
+    transition: background-color 0.2s ease;
+}
+
+.cta-button:hover {
+    background-color: #0b5ed7;
+}
+
+/* Estilos para os preços com desconto */
+.price-container {
+    text-align: center;
+}
+
+.old-price {
+    text-decoration: line-through;
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+}
+
+/* Estilo para o contador de licenças */
+.license-counter {
+    text-align: center;
+    margin: 25px 0;
+    padding: 15px;
+    background-color: #fff3cd;
+    border-radius: 6px;
+    border: 1px solid #ffeeba;
+}
+
+.remaining-licenses {
+    color: #dc3545;
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.progress-bar {
+    height: 10px;
+    background-color: #e9ecef;
+    border-radius: 5px;
+    margin-top: 10px;
+    overflow: hidden;
+}
+
+.progress {
+    height: 100%;
+    background-color: #dc3545;
+    border-radius: 5px;
+}
+
+/* Estilo para a nota de planos mensais */
+.monthly-note {
+    text-align: center;
+    font-style: italic;
+    color: #6c757d;
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}

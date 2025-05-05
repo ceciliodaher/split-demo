@@ -1031,90 +1031,198 @@
 	<div id="modal-upgrade" class="modal">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h3>Adquira a Versão Completa</h3>
+				<h3>Escolha o Plano Ideal para Seu Negócio</h3>
 				<span class="close">×</span>
 			</div>
 			<div class="modal-body">
-				<div class="upgrade-message"></div>
-
-				<div class="discount-banner">
-					<div class="discount-badge">LANÇAMENTO</div>
-					<p>De <span class="old-price">R$ 1.890,00</span> por <span class="new-price">R$ 1.290,00</span></p>
-					<p class="discount-detail">Oferta para os primeiros 100 clientes!</p>
+				<div class="upgrade-message">
+					<p>Você está utilizando a <strong>Versão Demonstrativa</strong> com recursos limitados. Desbloqueie funcionalidades avançadas para preparar sua empresa para o Split Payment.</p>
 				</div>
-
+				
+				<div class="discount-banner">
+					<div class="discount-badge">PRÉ-LANÇAMENTO</div>
+					<p>Preços promocionais com até 13% de desconto!</p>
+					<p class="discount-detail">Oferta válida até 30/06/2025 ou para os primeiros 100 clientes</p>
+				</div>
+				
 				<div class="pricing-options">
 					<div class="pricing-tab-buttons">
-						<button class="pricing-tab-button active" data-pricing-tab="package">Pacote Completo</button>
-						<button class="pricing-tab-button" data-pricing-tab="customized">Opções Personalizadas</button>
+						<button class="pricing-tab-button active" data-pricing-tab="annual">Pagamento Anual</button>
+						<button class="pricing-tab-button" data-pricing-tab="monthly">Pagamento Mensal</button>
 					</div>
-
-					<div class="pricing-tab-content active" id="package-tab">
-						<h4>Recursos exclusivos da versão completa:</h4>
-						<ul class="feature-list">
-							<li><i class="feature-icon">✓</i> Simulação completa para todos os anos (2026-2033)</li>
-							<li><i class="feature-icon">✓</i> Acesso a todos os setores econômicos</li>
-							<li><i class="feature-icon">✓</i> 6 estratégias avançadas de mitigação</li>
-							<li><i class="feature-icon">✓</i> Exportação detalhada para Excel</li>
-							<li><i class="feature-icon">✓</i> Memória de cálculo completa</li>
-							<li><i class="feature-icon">✓</i> Combinação ótima de estratégias</li>
-							<li><i class="feature-icon">✓</i> Personalização de setores</li>
-						</ul>
-						<div class="pricing-info">
-							<p class="price">R$ 1.890,00</p>
-							<p class="price-detail">Licença anual com atualizações</p>
+					
+					<!-- Planos Anuais -->
+					<div class="pricing-tab-content active" id="annual-tab">
+						<div class="plans-container">
+							<!-- Plano Básico -->
+							<div class="plan-card">
+								<div class="plan-header">
+									<h4>BÁSICO</h4>
+									<div class="price-container">
+										<p class="old-price">De R$ 1.490,00</p>
+										<p class="plan-price">R$ 1.290,00<span>/ano</span></p>
+									</div>
+								</div>
+								<div class="plan-features">
+									<h5>Ideal para pequenas empresas</h5>
+									<ul class="feature-list">
+										<li><i class="feature-icon">✓</i> Projeção completa (2026-2033)</li>
+										<li><i class="feature-icon">✓</i> Todos os setores econômicos</li>
+										<li><i class="feature-icon">✓</i> 4 estratégias de mitigação</li>
+										<li><i class="feature-icon">✓</i> Exportação básica para Excel</li>
+										<li><i class="feature-icon">✓</i> Até 3 perfis de usuário</li>
+									</ul>
+								</div>
+								<div class="plan-footer">
+									<button class="plan-button" data-plan="basic-annual">Selecionar</button>
+								</div>
+							</div>
+							
+							<!-- Plano Avançado -->
+							<div class="plan-card featured">
+								<div class="most-popular">MAIS ESCOLHIDO</div>
+								<div class="plan-header">
+									<h4>AVANÇADO</h4>
+									<div class="price-container">
+										<p class="old-price">De R$ 2.490,00</p>
+										<p class="plan-price">R$ 2.155,00<span>/ano</span></p>
+									</div>
+								</div>
+								<div class="plan-features">
+									<h5>Para empresas em crescimento</h5>
+									<ul class="feature-list">
+										<li><i class="feature-icon">✓</i> Tudo do plano Básico, mais:</li>
+										<li><i class="feature-icon">✓</i> Importação SPED e NF-e</li>
+										<li><i class="feature-icon">✓</i> 6 estratégias com análise combinada</li>
+										<li><i class="feature-icon">✓</i> Memória de cálculo completa</li>
+										<li><i class="feature-icon">✓</i> Até 8 perfis de usuário</li>
+									</ul>
+								</div>
+								<div class="plan-footer">
+									<button class="plan-button primary" data-plan="advanced-annual">Selecionar</button>
+								</div>
+							</div>
+							
+							<!-- Plano Corporativo -->
+							<div class="plan-card">
+								<div class="plan-header">
+									<h4>CORPORATIVO</h4>
+									<div class="price-container">
+										<p class="old-price">De R$ 4.490,00</p>
+										<p class="plan-price">R$ 3.887,00<span>/ano</span></p>
+									</div>
+								</div>
+								<div class="plan-features">
+									<h5>Para grupos empresariais</h5>
+									<ul class="feature-list">
+										<li><i class="feature-icon">✓</i> Tudo do plano Avançado, mais:</li>
+										<li><i class="feature-icon">✓</i> Suporte a múltiplos CNPJs</li>
+										<li><i class="feature-icon">✓</i> Integração via API com ERPs</li>
+										<li><i class="feature-icon">✓</i> Análise preditiva com IA</li>
+										<li><i class="feature-icon">✓</i> Usuários ilimitados</li>
+									</ul>
+								</div>
+								<div class="plan-footer">
+									<button class="plan-button" data-plan="corporate-annual">Selecionar</button>
+								</div>
+							</div>
 						</div>
 					</div>
-
-					<div class="pricing-tab-content" id="customized-tab">
-						<h4>Opções personalizadas adicionais:</h4>
-						<div class="custom-options">
-							<div class="custom-option">
-								<div class="custom-option-header">
-									<h5>Importação de SPED</h5>
-									<span class="custom-option-badge">PERSONALIZADO</span>
+					
+					<!-- Planos Mensais -->
+					<div class="pricing-tab-content" id="monthly-tab">
+						<div class="plans-container">
+							<!-- Plano Básico Mensal -->
+							<div class="plan-card">
+								<div class="plan-header">
+									<h4>BÁSICO</h4>
+									<p class="plan-price">R$ 149,00<span>/mês</span></p>
 								</div>
-								<p>Permite o preenchimento automático de valores a partir de arquivos SPED, reduzindo tempo de entrada de dados e minimizando erros.</p>
-								<div class="custom-option-footer">
-									<p>Preço sob consulta</p>
-									<button class="custom-option-button" data-option="sped">Solicitar Proposta</button>
+								<div class="plan-features">
+									<h5>Ideal para pequenas empresas</h5>
+									<ul class="feature-list">
+										<li><i class="feature-icon">✓</i> Projeção completa (2026-2033)</li>
+										<li><i class="feature-icon">✓</i> Todos os setores econômicos</li>
+										<li><i class="feature-icon">✓</i> 4 estratégias de mitigação</li>
+										<li><i class="feature-icon">✓</i> Exportação básica para Excel</li>
+										<li><i class="feature-icon">✓</i> Até 3 perfis de usuário</li>
+									</ul>
 								</div>
-							</div>
-
-							<div class="custom-option">
-								<div class="custom-option-header">
-									<h5>Integração com Sistemas</h5>
-									<span class="custom-option-badge">PERSONALIZADO</span>
-								</div>
-								<p>Integração com seu ERP ou sistema financeiro para sincronização automática de dados e análise contínua do impacto do Split Payment.</p>
-								<div class="custom-option-footer">
-									<p>Preço sob consulta</p>
-									<button class="custom-option-button" data-option="integration">Solicitar Proposta</button>
+								<div class="plan-footer">
+									<button class="plan-button" data-plan="basic-monthly">Selecionar</button>
 								</div>
 							</div>
-
-							<div class="custom-option">
-								<div class="custom-option-header">
-									<h5>Consultoria Personalizada</h5>
-									<span class="custom-option-badge">PERSONALIZADO</span>
+							
+							<!-- Plano Avançado Mensal -->
+							<div class="plan-card featured">
+								<div class="most-popular">MAIS ESCOLHIDO</div>
+								<div class="plan-header">
+									<h4>AVANÇADO</h4>
+									<p class="plan-price">R$ 249,00<span>/mês</span></p>
 								</div>
-								<p>Suporte especializado para análise dos resultados e elaboração de estratégias específicas para seu negócio.</p>
-								<div class="custom-option-footer">
-									<p>Preço sob consulta</p>
-									<button class="custom-option-button" data-option="consulting">Solicitar Proposta</button>
+								<div class="plan-features">
+									<h5>Para empresas em crescimento</h5>
+									<ul class="feature-list">
+										<li><i class="feature-icon">✓</i> Tudo do plano Básico, mais:</li>
+										<li><i class="feature-icon">✓</i> Importação SPED e NF-e</li>
+										<li><i class="feature-icon">✓</i> 6 estratégias com análise combinada</li>
+										<li><i class="feature-icon">✓</i> Memória de cálculo completa</li>
+										<li><i class="feature-icon">✓</i> Até 8 perfis de usuário</li>
+									</ul>
+								</div>
+								<div class="plan-footer">
+									<button class="plan-button primary" data-plan="advanced-monthly">Selecionar</button>
+								</div>
+							</div>
+							
+							<!-- Plano Corporativo Mensal -->
+							<div class="plan-card">
+								<div class="plan-header">
+									<h4>CORPORATIVO</h4>
+									<p class="plan-price">R$ 449,00<span>/mês</span></p>
+								</div>
+								<div class="plan-features">
+									<h5>Para grupos empresariais</h5>
+									<ul class="feature-list">
+										<li><i class="feature-icon">✓</i> Tudo do plano Avançado, mais:</li>
+										<li><i class="feature-icon">✓</i> Suporte a múltiplos CNPJs</li>
+										<li><i class="feature-icon">✓</i> Integração via API com ERPs</li>
+										<li><i class="feature-icon">✓</i> Análise preditiva com IA</li>
+										<li><i class="feature-icon">✓</i> Usuários ilimitados</li>
+									</ul>
+								</div>
+								<div class="plan-footer">
+									<button class="plan-button" data-plan="corporate-monthly">Selecionar</button>
 								</div>
 							</div>
 						</div>
+						<div class="monthly-note">
+							<p>Nota: Os preços promocionais de pré-lançamento são aplicáveis apenas para pagamentos anuais</p>
+						</div>
+					</div>
+					
+					<!-- Contador de licenças restantes -->
+					<div class="license-counter">
+						<p><strong>Apenas <span class="remaining-licenses">83</span> licenças promocionais restantes!</strong></p>
+						<div class="progress-bar">
+							<div class="progress" style="width: 17%"></div>
+						</div>
+					</div>
+					
+					<!-- Seção de Consultoria Personalizada -->
+					<div class="custom-solutions">
+						<h4>Precisa de soluções personalizadas?</h4>
+						<p>Entre em contato para consultoria especializada, treinamentos e integrações específicas para seu negócio.</p>
+						<button class="custom-option-button">Solicitar Atendimento Personalizado</button>
 					</div>
 				</div>
 			</div>
 			<div class="modal-footer">
-				<a href="https://www.expertzy.com.br/adquirir-simulador" class="btn-primary">Adquirir Agora</a>
-				<button class="btn-secondary close-modal">Voltar ao Simulador</button>
+				<p class="guarantee">Garantia de 15 dias ou seu dinheiro de volta</p>
+				<p class="support">Suporte técnico e atualizações incluídos</p>
 			</div>
 		</div>
 	</div>
-
 	<!-- Adicionar modal de contato personalizado -->
 	<div id="modal-custom-contact" class="modal">
 		<div class="modal-content">
